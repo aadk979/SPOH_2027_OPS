@@ -1,0 +1,17 @@
+node_modules/
+dist/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+# Never commit real roster data or exports (personal data)
+*.csv
+!**/fixtures/*.csv
+!**/templates/*.csv
+*.xlsx
+.DS_Store
+.vscode/
+.idea/
+playwright-report/
+test-results/

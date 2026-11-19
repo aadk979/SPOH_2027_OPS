@@ -1,0 +1,20 @@
+# Local development database (PostgreSQL 16). Tests do not need this — they use in-memory PGlite.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: spoh
+      POSTGRES_PASSWORD: spoh
+      POSTGRES_DB: spoh
+      TZ: Asia/Singapore
+    ports:
+      - '${DB_PORT:-55432}:5432'
+    volumes:
+      - spoh-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U spoh']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  spoh-db:

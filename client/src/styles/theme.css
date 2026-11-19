@@ -1,0 +1,123 @@
+/*
+ * "Clean Lab" design tokens (engineering/03_design/design_system.md).
+ * Colours are CSS variables so light/dark switch at runtime; Tailwind utilities
+ * (bg-surface, text-ink, …) are generated from them via @theme.
+ */
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/space-grotesk';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  --c-page: #eef0f4;
+  --c-surface: #ffffff;
+  --c-surface-2: #f6f7f9;
+  --c-line: #e6e8ec;
+  --c-ink: #0f1115;
+  --c-ink-2: #3c4250;
+  --c-muted: #7a8191;
+  /* DS-1: placeholder until the official SP brand red is confirmed. */
+  --c-accent: #d71f30;
+  --c-on-accent: #ffffff;
+  --c-hero: #0f1115;
+  --c-on-hero: #ffffff;
+  --c-ok: #0e7a43;
+  --c-ok-bg: #eafaf1;
+  --c-busy: #c81e2e;
+  --c-busy-bg: #fde8ea;
+  --c-quiet: #2f5bea;
+  --c-quiet-bg: #e8eefe;
+  --c-low: #a15c00;
+  --c-low-bg: #fff2dc;
+  --c-meter: #0f1115;
+  --c-track: #eceef2;
+  --grid-dot: rgb(20 30 60 / 0.1);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --c-page: #0e1013;
+  --c-surface: #15171b;
+  --c-surface-2: #1c1f24;
+  --c-line: #2a2d33;
+  --c-ink: #f2f3f5;
+  --c-ink-2: #c4c8d0;
+  --c-muted: #8a909c;
+  --c-accent: #ff4a57;
+  --c-on-accent: #ffffff;
+  --c-hero: #f2f3f5;
+  --c-on-hero: #0f1115;
+  --c-ok: #4ade80;
+  --c-ok-bg: rgb(74 222 128 / 0.12);
+  --c-busy: #ff6b76;
+  --c-busy-bg: rgb(255 107 118 / 0.14);
+  --c-quiet: #7ea2ff;
+  --c-quiet-bg: rgb(126 162 255 / 0.14);
+  --c-low: #fbbf24;
+  --c-low-bg: rgb(251 191 36 / 0.14);
+  --c-meter: #f2f3f5;
+  --c-track: #24272d;
+  --grid-dot: rgb(255 255 255 / 0.05);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-page: var(--c-page);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-line: var(--c-line);
+  --color-ink: var(--c-ink);
+  --color-ink-2: var(--c-ink-2);
+  --color-muted: var(--c-muted);
+  --color-accent: var(--c-accent);
+  --color-on-accent: var(--c-on-accent);
+  --color-hero: var(--c-hero);
+  --color-on-hero: var(--c-on-hero);
+  --color-ok: var(--c-ok);
+  --color-ok-bg: var(--c-ok-bg);
+  --color-busy: var(--c-busy);
+  --color-busy-bg: var(--c-busy-bg);
+  --color-quiet: var(--c-quiet);
+  --color-quiet-bg: var(--c-quiet-bg);
+  --color-low: var(--c-low);
+  --color-low-bg: var(--c-low-bg);
+  --color-meter: var(--c-meter);
+  --color-track: var(--c-track);
+
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Inter Variable', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --radius-card: 14px;
+  --radius-btn: 10px;
+  --radius-hero: 22px;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+  body {
+    @apply bg-page text-ink font-sans antialiased;
+    background-image: radial-gradient(var(--grid-dot) 1px, transparent 1.2px);
+    background-size: 16px 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}
