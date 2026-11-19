@@ -29,13 +29,14 @@ Open http://localhost:5173. The server runs migrations and seeds the SPOH 2027 d
 
 ## Everyday commands
 
-| Command                      | What it does                                               |
-| ---------------------------- | ---------------------------------------------------------- |
-| `npm run check`              | Typecheck + lint + all tests (run before every commit)     |
-| `npm test`                   | All tests                                                  |
-| `npm run db:generate`        | Create a migration after changing `server/src/db/schema/*` |
-| `npm run build`              | Production build of the server and client                  |
-| `docker build -t spoh-ops .` | Build the deployable image                                 |
+| Command                           | What it does                                                                                                   |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `npm run check`                   | Typecheck + lint + all tests (run before every commit)                                                         |
+| `npm test`                        | All tests                                                                                                      |
+| `npm run db:generate`             | Create a migration after changing `server/src/db/schema/*`                                                     |
+| `npm run build`                   | Production build of the server and client                                                                      |
+| `docker build -t spoh-ops .`      | Build the deployable image                                                                                     |
+| `npm run load:counting -w server` | FR-REG-6 load check (5 devices × 2 taps/s × 60 s) against a running server; see `server/scripts/count-load.ts` |
 
 ## Project layout
 

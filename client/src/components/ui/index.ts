@@ -9,3 +9,4 @@ export * from './Field';
 export * from './Notice';
 export * from './PageHeader';
 export * from './CountChip';
+export * from './TapPad';

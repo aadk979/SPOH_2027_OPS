@@ -1,4 +1,4 @@
-import type { Course, Rank, RegCategory, StationKind } from './enums.js';
+import type { Course, FootfallVariant, Rank, RegCategory, StationKind } from './enums.js';
 
 /** Human-readable labels used by the UI, CSV import and reports. */
 
@@ -34,4 +34,10 @@ export const COURSE_LABELS: Record<Course, string> = {
   DCS: 'DCS',
   DCITP: 'DCITP',
   Other: 'Other',
+};
+
+export const FOOTFALL_VARIANT_LABELS: Record<FootfallVariant, string> = {
+  entry: 'Entered',
+  guided: 'Guided group',
+  walk_in: 'Walk-in (counselling only)',
 };

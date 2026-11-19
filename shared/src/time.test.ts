@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { endOfSgtDay, sgtDateString, sgtInstant, sgtTimeString } from './time.js';
+import { endOfSgtDay, sgtDateString, sgtDayBounds, sgtInstant, sgtTimeString } from './time.js';
 
 describe('SGT time helpers', () => {
   it('uses the Singapore date, not the UTC date', () => {
@@ -16,5 +16,13 @@ describe('SGT time helpers', () => {
     const nineAm = sgtInstant('2027-01-07', '09:00');
     expect(nineAm.toISOString()).toBe('2027-01-07T01:00:00.000Z');
     expect(sgtTimeString(nineAm)).toBe('09:00');
+  });
+
+  it('gives the Singapore day as a half-open UTC range', () => {
+    const lateNight = new Date('2027-01-06T17:30:00Z'); // 01:30 SGT on 7 Jan
+    const { date, start, end } = sgtDayBounds(lateNight);
+    expect(date).toBe('2027-01-07');
+    expect(start.toISOString()).toBe('2027-01-06T16:00:00.000Z');
+    expect(end.toISOString()).toBe('2027-01-07T16:00:00.000Z');
   });
 });

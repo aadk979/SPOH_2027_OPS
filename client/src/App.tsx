@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router';
 import { LoginPage } from './features/auth/LoginPage';
+import { CountPage } from './features/counting/CountPage';
 import { PeoplePage } from './features/people/PeoplePage';
 import { RosterImportPage } from './features/roster/RosterImportPage';
 import { AppShell } from './layout/AppShell';
@@ -21,7 +22,7 @@ export function App() {
       >
         <Route index element={<HomeRedirect />} />
         <Route path="duty" element={<ComingSoonPage title="My Duty" slice="S3" />} />
-        <Route path="count" element={<ComingSoonPage title="Count" slice="S2" />} />
+        <Route path="count" element={<CountPage />} />
         <Route path="gifts" element={<ComingSoonPage title="Gifts" slice="S5" />} />
         <Route path="more" element={<MorePage />} />
         <Route

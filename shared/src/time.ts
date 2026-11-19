@@ -30,3 +30,10 @@ export function sgtInstant(date: string, time: string): Date {
 export function endOfSgtDay(instant: Date): Date {
   return sgtInstant(sgtDateString(instant), '23:59:59.999');
 }
+
+/** The half-open range [00:00 SGT, next 00:00 SGT) of the Singapore day containing `instant`. */
+export function sgtDayBounds(instant: Date): { date: string; start: Date; end: Date } {
+  const date = sgtDateString(instant);
+  const start = sgtInstant(date, '00:00');
+  return { date, start, end: new Date(start.getTime() + 24 * 60 * MS_PER_MINUTE) };
+}

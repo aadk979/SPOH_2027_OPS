@@ -11,6 +11,7 @@ export type Course = (typeof COURSES)[number];
 
 /** Courses that can be tagged on a counselling session (FR-FOOT-4). */
 export const COUNSELLING_COURSES = ['DAAA', 'DCDF', 'DCS'] as const satisfies readonly Course[];
+export type CounsellingCourse = (typeof COUNSELLING_COURSES)[number];
 
 export const STATION_KINDS = ['staffed', 'registration', 'counting', 'counselling'] as const;
 export type StationKind = (typeof STATION_KINDS)[number];

@@ -17,6 +17,9 @@ import { authRoutes } from './modules/auth/auth.routes.js';
 import { peopleRoutes } from './modules/people/people.routes.js';
 import { rosterRoutes } from './modules/roster/roster.routes.js';
 import { configRoutes } from './modules/config/config.routes.js';
+import { stationRoutes } from './modules/stations/stations.routes.js';
+import { registrationRoutes } from './modules/registration/registration.routes.js';
+import { footfallRoutes } from './modules/footfall/footfall.routes.js';
 
 /**
  * Builds the Fastify app without starting it, so tests can call app.inject().
@@ -49,6 +52,10 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       await api.register(peopleRoutes, { deps });
       await api.register(rosterRoutes, { deps });
       await api.register(configRoutes, { deps });
+      await api.register(stationRoutes, { deps });
+      // Rule 1: registration and footfall are separate modules with separate endpoints.
+      await api.register(registrationRoutes, { deps });
+      await api.register(footfallRoutes, { deps });
     },
     { prefix: '/api' },
   );
