@@ -11,7 +11,12 @@ import {
 import { allowedOrigins } from './config.js';
 import type { AppDeps } from './deps.js';
 import { registerErrorHandler, registerNotFound } from './plugins/error-handler.js';
+import { authPlugin } from './plugins/auth.js';
 import { healthRoutes } from './modules/health/health.routes.js';
+import { authRoutes } from './modules/auth/auth.routes.js';
+import { peopleRoutes } from './modules/people/people.routes.js';
+import { rosterRoutes } from './modules/roster/roster.routes.js';
+import { configRoutes } from './modules/config/config.routes.js';
 
 /**
  * Builds the Fastify app without starting it, so tests can call app.inject().
@@ -38,7 +43,12 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
 
   await app.register(
     async (api) => {
+      await api.register(authPlugin, { deps });
       await api.register(healthRoutes, { deps });
+      await api.register(authRoutes, { deps });
+      await api.register(peopleRoutes, { deps });
+      await api.register(rosterRoutes, { deps });
+      await api.register(configRoutes, { deps });
     },
     { prefix: '/api' },
   );

@@ -65,3 +65,13 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   return body as T;
 }
+
+/** Like api() but returns the raw response text (CSV downloads). */
+export async function apiText(path: string): Promise<string> {
+  const headers = new Headers();
+  const token = tokenStore.get();
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+  const res = await fetch(`${API_BASE}/api${path}`, { headers });
+  if (!res.ok) throw new ApiError(res.status, 'HTTP_ERROR', `Download failed (${res.status})`);
+  return res.text();
+}

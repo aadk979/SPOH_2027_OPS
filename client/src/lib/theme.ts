@@ -1,3 +1,5 @@
+import { useCallback, useState } from 'react';
+
 /** Clean Lab is a light design; dark is an opt-in per device (design_system.md §2). */
 export type ThemeChoice = 'light' | 'dark' | 'system';
 const KEY = 'spoh.theme';
@@ -25,4 +27,17 @@ export function applyTheme(choice: ThemeChoice) {
   } catch {
     /* ignore */
   }
+}
+
+/** Current theme plus a toggle, for any screen that offers the light/dark switch. */
+export function useTheme() {
+  const [theme, setTheme] = useState(() => resolveTheme(loadTheme()));
+  const toggle = useCallback(() => {
+    setTheme((current) => {
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      return next;
+    });
+  }, []);
+  return { theme, toggle };
 }

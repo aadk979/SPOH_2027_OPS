@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
 import { systemClock } from '../src/deps.js';
+import { CapturingEmailSender } from '../src/email/index.js';
 import { createTestDb, type TestDb } from './helpers/test-db.js';
 
 /** Single-server deployments (SERVE_CLIENT=true) serve the SPA and the API together. */
@@ -24,7 +25,12 @@ describe('SERVE_CLIENT mode', () => {
       SERVE_CLIENT: 'true',
       CLIENT_DIST_DIR: dist,
     });
-    app = await buildApp({ config, db: t.db, clock: systemClock });
+    app = await buildApp({
+      config,
+      db: t.db,
+      clock: systemClock,
+      email: new CapturingEmailSender(),
+    });
     await app.ready();
   });
 

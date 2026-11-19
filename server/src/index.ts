@@ -4,6 +4,8 @@ import { connectDb } from './db/client.js';
 import { runMigrations } from './db/migrate.js';
 import { seedDefaults } from './db/seed.js';
 import { systemClock } from './deps.js';
+import { createEmailSender } from './email/index.js';
+import { ensureBootstrapCC } from './modules/people/bootstrap.js';
 
 /** Production / dev entry point: migrate, seed defaults, start listening. */
 async function main() {
@@ -12,8 +14,9 @@ async function main() {
 
   const { db, close } = connectDb(config.DATABASE_URL);
   await seedDefaults(db);
+  await ensureBootstrapCC(db, config.BOOTSTRAP_CC_EMAIL);
 
-  const app = await buildApp({ config, db, clock: systemClock });
+  const app = await buildApp({ config, db, clock: systemClock, email: createEmailSender(config) });
 
   const shutdown = async (signal: string) => {
     app.log.info({ signal }, 'Shutting down');
