@@ -9,11 +9,13 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
+      - name: Use npm 11 (matches package-lock.json)
+        run: npm install -g npm@11
       - run: npm ci
       - name: Typecheck
         run: npm run typecheck

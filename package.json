@@ -1,11 +1,12 @@
 {
   "name": "spoh2027-ops",
   "private": true,
-  "description": "SPOH 2027 Event Operations App — Singapore Polytechnic School of Computing Open House",
+  "description": "SPOH 2027 Event Operations App \u2014 Singapore Polytechnic School of Computing Open House",
   "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22",
+    "npm": ">=11"
   },
   "workspaces": [
     "shared",
@@ -39,5 +40,6 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.73.0",
     "vitest": "^4.1.12"
-  }
+  },
+  "packageManager": "npm@11.11.0"
 }
