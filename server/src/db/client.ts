@@ -21,3 +21,6 @@ export function connectDb(databaseUrl: string): DbConnection {
   const db = drizzle(pool, { schema, casing: 'snake_case' });
   return { db, close: () => pool.end() };
 }
+
+/** A transaction handle; services that may run inside a transaction accept `Db | Tx`. */
+export type Tx = Parameters<Parameters<Db['transaction']>[0]>[0];

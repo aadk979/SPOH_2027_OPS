@@ -20,6 +20,9 @@ import { configRoutes } from './modules/config/config.routes.js';
 import { stationRoutes } from './modules/stations/stations.routes.js';
 import { registrationRoutes } from './modules/registration/registration.routes.js';
 import { footfallRoutes } from './modules/footfall/footfall.routes.js';
+import { setupRoutes } from './modules/setup/setup.routes.js';
+import { deploymentRoutes } from './modules/deployment/deployment.routes.js';
+import { dutyRoutes } from './modules/duty/duty.routes.js';
 
 /**
  * Builds the Fastify app without starting it, so tests can call app.inject().
@@ -56,6 +59,9 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       // Rule 1: registration and footfall are separate modules with separate endpoints.
       await api.register(registrationRoutes, { deps });
       await api.register(footfallRoutes, { deps });
+      await api.register(setupRoutes, { deps });
+      await api.register(deploymentRoutes, { deps });
+      await api.register(dutyRoutes, { deps });
     },
     { prefix: '/api' },
   );

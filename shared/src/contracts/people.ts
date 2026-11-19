@@ -23,19 +23,32 @@ export const PersonDto = z.object({
 });
 export type PersonDto = z.infer<typeof PersonDto>;
 
-export const PersonInput = z.object({
+/** The fields with no defaults, so a patch only contains what the caller sent. */
+const PersonFields = z.object({
   name: z.string().trim().min(1, 'Name is required.').max(120),
   email: EmailSchema,
-  phone: PhoneSchema.nullable().default(null),
-  course: z.enum(COURSES).nullable().default(null),
+  phone: PhoneSchema.nullable(),
+  course: z.enum(COURSES).nullable(),
   rank: z.enum(RANKS),
-  team: z.string().trim().min(1).nullable().default(null),
-  portfolio: z.string().trim().min(1).nullable().default(null),
-  availableDayIds: z.array(z.uuid()).default([]),
+  team: z.string().trim().min(1).nullable(),
+  portfolio: z.string().trim().min(1).nullable(),
+  availableDayIds: z.array(z.uuid()),
+});
+
+export const PersonInput = PersonFields.extend({
+  phone: PersonFields.shape.phone.default(null),
+  course: PersonFields.shape.course.default(null),
+  team: PersonFields.shape.team.default(null),
+  portfolio: PersonFields.shape.portfolio.default(null),
+  availableDayIds: PersonFields.shape.availableDayIds.default([]),
 });
 export type PersonInput = z.infer<typeof PersonInput>;
 
-export const PersonPatch = PersonInput.partial().extend({ active: z.boolean().optional() });
+/**
+ * Built from the default-free fields: Zod's .partial() still applies defaults, which would
+ * silently blank fields the caller never sent (e.g. Deactivate wiping a phone number).
+ */
+export const PersonPatch = PersonFields.partial().extend({ active: z.boolean().optional() });
 export type PersonPatch = z.infer<typeof PersonPatch>;
 
 export const PeopleListResponse = z.object({ people: z.array(PersonDto) });

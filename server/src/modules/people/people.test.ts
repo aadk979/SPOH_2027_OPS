@@ -78,6 +78,28 @@ describe('people API', () => {
     expect(demote.statusCode).toBe(403);
   });
 
+  it('a partial edit (e.g. Deactivate) leaves every other field untouched', async () => {
+    const admin = await ctx.signIn('deputy');
+    const created = await ctx.as(admin, {
+      method: 'POST',
+      url: '/api/people',
+      payload: { ...newVolunteer, course: 'DCS' },
+    });
+    const id = created.json().id as string;
+    const res = await ctx.as(admin, {
+      method: 'PATCH',
+      url: `/api/people/${id}`,
+      payload: { active: false },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({
+      active: false,
+      phone: '91234567',
+      course: 'DCS',
+      team: 'Relief',
+    });
+  });
+
   it('blocks deactivating yourself', async () => {
     const cc = await ctx.signIn('cc');
     const res = await ctx.as(cc, {

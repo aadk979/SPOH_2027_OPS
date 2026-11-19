@@ -1,8 +1,12 @@
 import { Route, Routes } from 'react-router';
 import { LoginPage } from './features/auth/LoginPage';
 import { CountPage } from './features/counting/CountPage';
+import { DeploymentPage } from './features/deployment/DeploymentPage';
+import { MyDutyPage } from './features/duty/MyDutyPage';
 import { PeoplePage } from './features/people/PeoplePage';
 import { RosterImportPage } from './features/roster/RosterImportPage';
+import { SetupPage } from './features/setup/SetupPage';
+import { TeamPage } from './features/team/TeamPage';
 import { AppShell } from './layout/AppShell';
 import { HomeRedirect, RequireAuth, RequireTier } from './layout/guards';
 import { ComingSoonPage } from './pages/ComingSoonPage';
@@ -21,7 +25,7 @@ export function App() {
         }
       >
         <Route index element={<HomeRedirect />} />
-        <Route path="duty" element={<ComingSoonPage title="My Duty" slice="S3" />} />
+        <Route path="duty" element={<MyDutyPage />} />
         <Route path="count" element={<CountPage />} />
         <Route path="gifts" element={<ComingSoonPage title="Gifts" slice="S5" />} />
         <Route path="more" element={<MorePage />} />
@@ -29,7 +33,7 @@ export function App() {
           path="team"
           element={
             <RequireTier tier="ic">
-              <ComingSoonPage title="My team" slice="S3" />
+              <TeamPage />
             </RequireTier>
           }
         />
@@ -53,7 +57,7 @@ export function App() {
           path="deployment"
           element={
             <RequireTier tier="admin">
-              <ComingSoonPage title="Deployment" slice="S3" />
+              <DeploymentPage />
             </RequireTier>
           }
         />
@@ -61,7 +65,7 @@ export function App() {
           path="setup"
           element={
             <RequireTier tier="admin">
-              <ComingSoonPage title="Setup" slice="S3" />
+              <SetupPage />
             </RequireTier>
           }
         />

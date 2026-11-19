@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
 import { expect, type Page } from '@playwright/test';
 
 function emailsTo(email: string): string[] {
@@ -37,4 +38,37 @@ export async function signIn(page: Page, email: string) {
   await expect(page.getByText(/a code is on its way/)).toBeVisible();
   await page.getByLabel('6-digit code').fill(await lastCodeFor(email, before));
   await page.getByRole('button', { name: 'Sign in' }).click();
+}
+
+/** Where reusable sessions are kept between tests (git-ignored test-results folder). */
+const sessionFile = (email: string) =>
+  path.resolve('test-results', `session-${email.replace(/\W/g, '_')}.txt`);
+
+/**
+ * Signs in once and reuses the session for later tests, so a run stays under the
+ * intentional login rate limit (5 codes per 15 min per person). S1 still tests the real
+ * sign-in flow; this is for tests that only need to *be* signed in.
+ */
+export async function signInReusing(page: Page, email: string) {
+  const file = sessionFile(email);
+  if (existsSync(file)) {
+    const token = readFileSync(file, 'utf8').trim();
+    await page.goto('/login');
+    const ok = await page.evaluate(async (t) => {
+      const res = await fetch('/api/me', { headers: { Authorization: `Bearer ${t}` } });
+      if (res.ok) localStorage.setItem('spoh.token', t);
+      return res.ok;
+    }, token);
+    if (ok) {
+      await page.goto('/');
+      return;
+    }
+  }
+  await signIn(page, email);
+  await expect(page).not.toHaveURL(/\/login/);
+  const token = await page.evaluate(() => localStorage.getItem('spoh.token'));
+  if (token) {
+    mkdirSync(path.dirname(file), { recursive: true });
+    writeFileSync(file, token);
+  }
 }

@@ -1,9 +1,9 @@
-import type { Db } from '../db/client.js';
+import type { Db, Tx } from '../db/client.js';
 import { auditLog } from '../db/schema/index.js';
 
 /** Records who did what (FR-AUD-1). Call inside the same transaction as the change when possible. */
 export async function audit(
-  db: Db,
+  db: Db | Tx,
   entry: {
     actorId: string | null;
     action: string;

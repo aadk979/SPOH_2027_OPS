@@ -10,3 +10,4 @@ export * from './Notice';
 export * from './PageHeader';
 export * from './CountChip';
 export * from './TapPad';
+export * from './DayTabs';

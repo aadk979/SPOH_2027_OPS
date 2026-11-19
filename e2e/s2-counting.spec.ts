@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { signIn } from './helpers';
+import { signInReusing } from './helpers';
 
 const CC = process.env.E2E_CC_EMAIL ?? 'cc@e2e.test';
 const SHOTS = process.env.E2E_SCREENSHOT_DIR;
@@ -24,7 +24,7 @@ test('S2: Sign-Up Booth, Welcome Lounge and Counselling Room counting', async ({
       ? page.screenshot({ path: `${SHOTS}/${info.project.name}-s2-${name}.png`, fullPage: true })
       : undefined;
 
-  await signIn(page, CC);
+  await signInReusing(page, CC);
   await expect(page).toHaveURL(/\/dashboard$/);
   await page.goto('/count');
   await expect(page.getByRole('heading', { name: 'Where are you counting?' })).toBeVisible();

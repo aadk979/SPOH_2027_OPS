@@ -10,3 +10,7 @@ export * from './contracts/config.js';
 export * from './contracts/stations.js';
 export * from './contracts/registration.js';
 export * from './contracts/footfall.js';
+export * from './days.js';
+export * from './contracts/setup.js';
+export * from './contracts/deployment.js';
+export * from './contracts/duty.js';
