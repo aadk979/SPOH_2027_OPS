@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     port: 5173,
     // In development the API runs on :3000; same-origin proxy avoids CORS locally.
-    proxy: { '/api': 'http://localhost:3000' },
+    proxy: { '/api': 'http://127.0.0.1:3000' },
   },
   test: {
     environment: 'jsdom',
