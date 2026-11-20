@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from './AuthProvider';
 import { LoginPage } from './LoginPage';
@@ -85,5 +85,42 @@ describe('LoginPage', () => {
     await userEvent.type(await screen.findByLabelText('6-digit code'), '000000');
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(await screen.findByText('That code is wrong or has expired.')).toBeInTheDocument();
+  });
+
+  it('signs in from a duty-email link and opens the page it names (FR-NOTIF-1)', async () => {
+    const user = {
+      id: 'u1',
+      name: 'Alex',
+      email: 'a@x.sg',
+      rank: 'volunteer',
+      tier: 'volunteer',
+      team: 'Relief',
+      portfolio: null,
+      course: null,
+      canManageBreaks: false,
+    };
+    const fetchMock = vi.fn(async (url: string) =>
+      String(url).endsWith('/auth/verify')
+        ? json(200, { token: 'tok-9', expiresAt: '2027-01-07T15:59:59.999Z', user })
+        : json(200, { user }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    window.history.replaceState(null, '', '/login#email=a%40x.sg&code=123456&next=%2Fduty');
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <AuthProvider>
+          <MemoryRouter initialEntries={['/login']}>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/duty" element={<p>My Duty page</p>} />
+              <Route path="/" element={<p>Home</p>} />
+            </Routes>
+          </MemoryRouter>
+        </AuthProvider>
+      </QueryClientProvider>,
+    );
+    expect(await screen.findByText('My Duty page')).toBeInTheDocument();
+    expect(window.location.hash).toBe(''); // the code is cleared from the address bar
   });
 });

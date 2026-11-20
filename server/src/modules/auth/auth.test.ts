@@ -52,6 +52,14 @@ describe('auth', () => {
     expect(again.json().error.code).toBe('INVALID_CODE');
   });
 
+  it('accepts an earlier unexpired code after a newer one was sent (e.g. a duty email)', async () => {
+    await request(email);
+    const first = lastCode();
+    await request(email);
+    expect(lastCode()).not.toBe(first);
+    expect((await verify(email, first)).statusCode).toBe(200);
+  });
+
   it('rejects an expired code', async () => {
     await request(email);
     ctx.clock.advance(16 * 60_000);

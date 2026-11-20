@@ -22,10 +22,22 @@ services:
         value: 'true'
       - key: TZ
         value: Asia/Singapore
-      - key: EMAIL_PROVIDER
-        value: console
-      # Asked for when the Blueprint is created; never committed.
+      # Set in the Render dashboard (Environment); never committed. See docs/DEPLOY-RENDER.md.
       - key: BOOTSTRAP_CC_EMAIL
+        sync: false
+      - key: EMAIL_PROVIDER # console | smtp | resend
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_SECURE
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
         sync: false
 
 databases:

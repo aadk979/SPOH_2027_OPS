@@ -46,6 +46,8 @@ export const BoardPerson = z.object({
   stationId: z.uuid().nullable(),
   later: z.array(PlannedMove),
   unacked: z.number().int(),
+  /** On a break right now (FR-BRK-5): when it ends, HH:MM. */
+  onBreakUntil: z.string().nullable(),
 });
 export type BoardPerson = z.infer<typeof BoardPerson>;
 

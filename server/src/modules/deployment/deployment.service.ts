@@ -16,7 +16,8 @@ import { audit } from '../../lib/audit.js';
 import { AppError, badRequest, notFound } from '../../lib/errors.js';
 import { getStation } from '../stations/stations.service.js';
 import { dayBounds, loadPosts, readDay } from './posts.js';
-import { effectiveNow, postAt } from './timeline.js';
+import { effectiveNow, postAt, viewInstant } from './timeline.js';
+import { onBreakAt } from '../breaks/breaks.service.js';
 
 type DayRow = typeof eventDay.$inferSelect;
 
@@ -96,6 +97,7 @@ export async function assign(
         kind: 'assignment',
         summary: `${formatDayShort(day.date)}: ${was}${target.name}${when}`,
         createdBy: actor.id,
+        createdAt: now,
       });
     }
   }
@@ -142,6 +144,8 @@ export async function board(db: Db, now: Date, dayId: string): Promise<BoardPers
     .orderBy(asc(person.name));
   const posts = await loadPosts(db, [day.id]);
   const unacked = await unackedByPerson(db);
+  const { start, end } = dayBounds(day);
+  const onBreak = await onBreakAt(db, day.id, viewInstant(now, start, end));
 
   return people.map((p) => {
     const { current, later } = readDay(posts, p.id, day, now);
@@ -154,6 +158,7 @@ export async function board(db: Db, now: Date, dayId: string): Promise<BoardPers
       stationId: current?.stationId ?? null,
       later: later.map((l) => ({ from: sgtTimeString(l.from), stationId: l.stationId })),
       unacked: unacked.get(p.id) ?? 0,
+      onBreakUntil: onBreak.get(p.id) ?? null,
     };
   });
 }

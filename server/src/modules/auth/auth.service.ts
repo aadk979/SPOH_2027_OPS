@@ -92,20 +92,36 @@ export async function requestLoginCode(deps: Deps, email: string): Promise<void>
   if (recent >= MAX_CODES_PER_WINDOW) return;
 
   const { code } = await createCode(deps, p.id, null);
-  const link = `${deps.config.PUBLIC_APP_URL}/login#email=${encodeURIComponent(p.email)}&code=${code}`;
-  await deps.email.send({
-    to: p.email,
-    subject: `Your SPOH 2027 sign-in code: ${code}`,
-    text: [
-      `Hi ${p.name},`,
-      '',
-      `Your sign-in code is ${code}. It expires in 15 minutes.`,
-      '',
-      `Or tap this link to sign in: ${link}`,
-      '',
-      "If you didn't ask for this, you can ignore this email.",
-    ].join('\n'),
-  });
+  const link = loginUrl(deps, p.email, code);
+  try {
+    await deps.email.send({
+      to: p.email,
+      subject: `Your SPOH 2027 sign-in code: ${code}`,
+      text: [
+        `Hi ${p.name},`,
+        '',
+        `Your sign-in code is ${code}. It expires in 15 minutes.`,
+        '',
+        `Or tap this link to sign in: ${link}`,
+        '',
+        "If you didn't ask for this, you can ignore this email.",
+      ].join('\n'),
+    });
+  } catch (err) {
+    // Same answer either way (FR-AUTH-2); an Admin can issue a code on screen (FR-AUTH-5).
+    console.error(`Sign-in email to person ${p.id} failed:`, (err as Error).message);
+  }
+}
+
+/** A sign-in link: fills in the code and, once signed in, opens `next` (e.g. /duty). */
+export function loginUrl(deps: Pick<Deps, 'config'>, email: string, code: string, next?: string) {
+  const params = new URLSearchParams({ email, code, ...(next ? { next } : {}) });
+  return `${deps.config.PUBLIC_APP_URL}/login#${params.toString()}`;
+}
+
+/** A fresh single-use code for a link inside a notification email (FR-NOTIF-1). */
+export async function codeForEmailLink(deps: Deps, personId: string) {
+  return (await createCode(deps, personId, null)).code;
 }
 
 const invalidCode = () =>
@@ -120,7 +136,8 @@ export async function verifyLoginCode(deps: Deps, email: string, code: string) {
     throw tooManyRequests('Too many wrong codes. Please wait 10 minutes and try again.');
   }
 
-  const [latest] = await deps.db
+  // Any unexpired, unused code works: a duty email may arrive after a sign-in email.
+  const codes = await deps.db
     .select()
     .from(authToken)
     .where(
@@ -131,11 +148,13 @@ export async function verifyLoginCode(deps: Deps, email: string, code: string) {
         gt(authToken.expiresAt, now),
       ),
     )
-    .orderBy(desc(authToken.createdAt))
-    .limit(1);
+    .orderBy(desc(authToken.createdAt));
+  const latest = codes[0];
   if (!latest) throw invalidCode();
 
-  if (latest.tokenHash !== hashToken(code, p.id)) {
+  const hash = hashToken(code, p.id);
+  const match = codes.find((c) => c.tokenHash === hash);
+  if (!match) {
     await deps.db
       .update(authToken)
       .set({ failedAttempts: latest.failedAttempts + 1 })
@@ -146,7 +165,7 @@ export async function verifyLoginCode(deps: Deps, email: string, code: string) {
   const token = generateSessionToken();
   const expiresAt = endOfSgtDay(now);
   await deps.db.transaction(async (tx) => {
-    await tx.update(authToken).set({ usedAt: now }).where(eq(authToken.id, latest.id));
+    await tx.update(authToken).set({ usedAt: now }).where(eq(authToken.id, match.id));
     await tx.insert(authToken).values({
       personId: p.id,
       kind: 'session',

@@ -72,3 +72,6 @@ export async function signInReusing(page: Page, email: string) {
     writeFileSync(file, token);
   }
 }
+
+/** Full text of every email sent to `email` so far (console adapter log), oldest first. */
+export const emailsSentTo = (email: string) => emailsTo(email);

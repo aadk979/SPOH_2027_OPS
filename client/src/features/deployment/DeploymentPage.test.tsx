@@ -32,11 +32,13 @@ const person = (n: number, name: string, extra: Partial<BoardPerson> = {}): Boar
   stationId: null,
   later: [],
   unacked: 0,
+  onBreakUntil: null,
   ...extra,
 });
 
-function setup() {
+function setup(extra: Parameters<typeof mockApi>[0] = {}) {
   return mockApi({
+    'GET /notifications/failed': () => ({ body: { failed: [], queued: 0 } }),
     'GET /days': () => ({
       body: {
         days: [
@@ -54,7 +56,7 @@ function setup() {
         people: [
           person(1, 'Mei Ling'),
           person(2, 'Hari Kumar'),
-          person(3, 'Ben Ho', { stationId: LOUNGE }),
+          person(3, 'Ben Ho', { stationId: LOUNGE, onBreakUntil: '12:45' }),
           person(4, 'Zoe Tan', { available: false }),
         ],
       },
@@ -72,6 +74,7 @@ function setup() {
               },
             },
           },
+    ...extra,
   });
 }
 
@@ -126,5 +129,42 @@ describe('Deployment', () => {
         override: true,
       },
     ]);
+  });
+
+  it('shows who is on a break now (FR-BRK-5)', async () => {
+    setup();
+    renderWithQuery(<DeploymentPage />);
+    const lounge = await screen.findByRole('group', { name: 'Welcome Lounge' });
+    expect(within(lounge).getByText('On break until 12:45')).toBeVisible();
+  });
+
+  it('lists failed duty emails and retries them (FR-NOTIF-3)', async () => {
+    const api = setup({
+      'GET /notifications/failed': () => ({
+        body: {
+          failed: [
+            {
+              personId: id(2),
+              name: 'Hari Kumar',
+              email: 'hari@example.test',
+              changes: 2,
+              lastError: 'SMTP 535 bad credentials',
+              lastTriedAt: '2027-01-07T02:00:00Z',
+            },
+          ],
+          queued: 0,
+        },
+      }),
+      'POST /notifications/retry': () => ({ body: { requeued: 2 } }),
+    });
+    renderWithQuery(<DeploymentPage />);
+    expect(await screen.findByText(/1 person didn.t get their duty email/)).toBeVisible();
+    await userEvent.click(screen.getByRole('tab', { name: /^Changes/ }));
+    const panel = await screen.findByRole('region', { name: 'Emails not delivered' });
+    expect(within(panel).getByText('SMTP 535 bad credentials')).toBeVisible();
+    await userEvent.click(within(panel).getByRole('button', { name: 'Retry' }));
+    expect(api.calls.find((c) => c.path === '/notifications/retry')?.body).toEqual({
+      personId: id(2),
+    });
   });
 });

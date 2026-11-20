@@ -26,7 +26,7 @@ const IdParams = z.object({ id: z.uuid() });
 /** Setup: event days, stations, thresholds. Admins only; nothing is hard-wired (FR-CFG-5/6). */
 export const setupRoutes: AppPlugin = async (app, { deps }) => {
   const adminOnly = { preHandler: requireTier('admin') };
-  const { db } = deps;
+  const { db, clock } = deps;
 
   app.post(
     '/days',
@@ -38,7 +38,8 @@ export const setupRoutes: AppPlugin = async (app, { deps }) => {
   app.patch(
     '/days/:id',
     { ...adminOnly, schema: { params: IdParams, body: DayPatch, response: { 200: EventDayDto } } },
-    async (request) => updateDay(db, currentUser(request), request.params.id, request.body),
+    async (request) =>
+      updateDay(db, clock.now(), currentUser(request), request.params.id, request.body),
   );
 
   app.get(

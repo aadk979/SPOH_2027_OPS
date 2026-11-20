@@ -62,3 +62,8 @@ export const requireUser: Guard = async (request) => {
 
 /** CC-only actions: roster import/replace, reset counts, wipe data (Q23). */
 export const requireCC = requireTier('cc');
+
+/** Breaks: Admins and the Welfare IC (FR-BRK-1, FR-AUTH-6). */
+export const requireBreakManager: Guard = async (request) => {
+  if (!currentUser(request).canManageBreaks) throw forbidden();
+};

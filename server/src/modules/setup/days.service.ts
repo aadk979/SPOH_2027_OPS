@@ -73,7 +73,13 @@ export function timingSummary(before: EventDayDto, after: EventDayDto): string |
  * Edits a day. A date or time change creates a "Got it" change for everyone posted that
  * day (FR-CFG-5b → FR-DUTY-6); the email follows in slice S4.
  */
-export async function updateDay(db: Db, actor: CurrentUser, id: string, patch: DayPatch) {
+export async function updateDay(
+  db: Db,
+  now: Date,
+  actor: CurrentUser,
+  id: string,
+  patch: DayPatch,
+) {
   const existing = await getDay(db, id);
   if (patch.date) await assertDateFree(db, patch.date, id);
 
@@ -93,6 +99,7 @@ export async function updateDay(db: Db, actor: CurrentUser, id: string, patch: D
             kind: 'timing' as const,
             summary,
             createdBy: actor.id,
+            createdAt: now,
           })),
         );
       }

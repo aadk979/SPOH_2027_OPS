@@ -29,3 +29,11 @@ export function HomeRedirect() {
   const { user } = useAuth();
   return user ? <Navigate to={homePathFor(user)} replace /> : <Navigate to="/login" replace />;
 }
+
+/** Breaks: Admins and the Welfare IC only (mirrors the server's FR-BRK-1 check). */
+export function RequireBreakManager({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  if (!user) return null;
+  if (!user.canManageBreaks) return <Navigate to={homePathFor(user)} replace />;
+  return children;
+}

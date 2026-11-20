@@ -38,6 +38,7 @@ describe('My Duty, Got it and the team view', () => {
     await addPerson(ctx.db, { rank: 'ic', team: 'Room Ushers', name: 'Casey Ong' });
     const vol = await ctx.signIn('volunteer', { team: 'Room Ushers', availableDayIds: [thu()] });
     await assignAs(ctx, admin, { personIds: [vol.id], stationId: lounge, dayIds: [thu()] });
+    ctx.clock.advance(60_000);
     await assignAs(ctx, admin, {
       personIds: [vol.id],
       stationId: counsel,

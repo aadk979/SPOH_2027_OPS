@@ -23,6 +23,8 @@ import { footfallRoutes } from './modules/footfall/footfall.routes.js';
 import { setupRoutes } from './modules/setup/setup.routes.js';
 import { deploymentRoutes } from './modules/deployment/deployment.routes.js';
 import { dutyRoutes } from './modules/duty/duty.routes.js';
+import { notificationRoutes } from './modules/notifications/notifications.routes.js';
+import { breakRoutes } from './modules/breaks/breaks.routes.js';
 
 /**
  * Builds the Fastify app without starting it, so tests can call app.inject().
@@ -62,6 +64,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       await api.register(setupRoutes, { deps });
       await api.register(deploymentRoutes, { deps });
       await api.register(dutyRoutes, { deps });
+      await api.register(notificationRoutes, { deps });
+      await api.register(breakRoutes, { deps });
     },
     { prefix: '/api' },
   );

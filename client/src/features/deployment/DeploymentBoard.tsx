@@ -57,6 +57,11 @@ function PersonRow({
           </span>
         </span>
         <span className="flex flex-col items-end gap-1">
+          {person.onBreakUntil && (
+            <span className="rounded-full bg-quiet-bg px-2 py-0.5 text-[11px] font-semibold text-quiet">
+              On break until {person.onBreakUntil}
+            </span>
+          )}
           {person.unacked > 0 && (
             <CountChip count={person.unacked} one="unacked" many="unacked" tone="error" />
           )}

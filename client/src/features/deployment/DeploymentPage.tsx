@@ -7,6 +7,7 @@ import { useAdminStations } from '../setup/setupApi';
 import { DeploymentBoard, groupBoard } from './DeploymentBoard';
 import { useBoard, useUnacked } from './deploymentApi';
 import { MovePanel } from './MovePanel';
+import { FailedEmails, useFailedEmails } from './FailedEmails';
 import { UnackedList } from './UnackedList';
 
 /** Wireframe B2: assign and reassign, and see who hasn't acknowledged (FR-DUTY-2/3/4/8). */
@@ -17,6 +18,7 @@ export function DeploymentPage() {
   const dayId = chosenDay ?? pickDefaultDay(days.data ?? [], sgtDateString(new Date()))?.id ?? null;
   const board = useBoard(dayId);
   const unacked = useUnacked({ stationId: '', team: '' });
+  const failedEmails = useFailedEmails().data?.failed.length ?? 0;
   const [tab, setTab] = useState<'board' | 'changes'>('board');
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -76,8 +78,17 @@ export function DeploymentPage() {
         ))}
       </div>
 
+      {failedEmails > 0 && tab === 'board' && (
+        <Notice tone="error">
+          {failedEmails} {failedEmails === 1 ? 'person' : 'people'} didn&apos;t get their duty
+          email. See Changes.
+        </Notice>
+      )}
       {tab === 'changes' ? (
-        <UnackedList stations={stationList} />
+        <>
+          <FailedEmails />
+          <UnackedList stations={stationList} />
+        </>
       ) : (
         <>
           {days.data?.length === 0 && <Notice>Add event days in Setup first.</Notice>}

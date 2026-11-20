@@ -21,6 +21,23 @@ describe('loadConfig', () => {
     expect(config.APP_ORIGIN).toBe('https://ops.onrender.com');
   });
 
+  it('needs SMTP credentials when the provider is smtp (FR-NOTIF-4)', () => {
+    expect(() =>
+      loadConfig({ ...base, EMAIL_PROVIDER: 'smtp', SMTP_HOST: 'smtp.gmail.com' }),
+    ).toThrow(/SMTP_USER: required when EMAIL_PROVIDER=smtp[\s\S]*SMTP_PASS/);
+    const ok = loadConfig({
+      ...base,
+      EMAIL_PROVIDER: 'smtp',
+      SMTP_HOST: 'smtp.gmail.com',
+      SMTP_PORT: '465',
+      SMTP_SECURE: 'true',
+      SMTP_USER: 'someone@gmail.com',
+      SMTP_PASS: 'app-password',
+    });
+    expect(ok.SMTP_PORT).toBe(465);
+    expect(ok.SMTP_SECURE).toBe(true);
+  });
+
   it('fails fast without a database URL', () => {
     expect(() => loadConfig({})).toThrow(/DATABASE_URL/);
   });

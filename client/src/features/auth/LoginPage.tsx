@@ -6,6 +6,12 @@ import { BrandMark, Button, Card, Notice, TextField } from '../../components/ui'
 import { api, ApiError } from '../../lib/api';
 import { useAuth } from './AuthProvider';
 
+/** Where to go after signing in: only a path inside this app (never another site). */
+function readNext(): string {
+  const next = new URLSearchParams(window.location.hash.slice(1)).get('next');
+  return next && next.startsWith('/') && !next.startsWith('//') ? next : '/';
+}
+
 /** Reads `#email=…&code=…` from a magic link, then clears it from the address bar. */
 function readMagicLink(): { email: string; code: string } | null {
   const params = new URLSearchParams(window.location.hash.slice(1));
@@ -22,6 +28,8 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [step, setStep] = useState<'email' | 'code'>('email');
+  // Duty emails link to /login#…&next=/duty so the volunteer lands on their acknowledgement.
+  const [next, setNext] = useState(readNext);
 
   const requestCode = useMutation({
     mutationFn: (address: string) =>
@@ -42,8 +50,10 @@ export function LoginPage() {
   const { mutate: verifyCode } = verify;
   useEffect(() => {
     const handle = () => {
+      const target = readNext();
       const link = readMagicLink();
       if (!link) return;
+      setNext(target);
       setEmail(link.email);
       setCode(link.code);
       setStep('code');
@@ -54,7 +64,7 @@ export function LoginPage() {
     return () => window.removeEventListener('hashchange', handle);
   }, [verifyCode]);
 
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to={next} replace />;
 
   const onEmail = (e: FormEvent) => {
     e.preventDefault();

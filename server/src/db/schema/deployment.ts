@@ -68,6 +68,10 @@ export const dutyChange = pgTable(
     emailStatus: emailStatusEnum('email_status').notNull().default('pending'),
     emailAttempts: integer('email_attempts').notNull().default(0),
     emailedAt: timestamp('emailed_at', { withTimezone: true }),
+    /** Back-off: a failed send is not retried before this time (FR-NOTIF-3). */
+    emailNextAttemptAt: timestamp('email_next_attempt_at', { withTimezone: true }),
+    /** Last provider error, shown to Admins when a send has failed for good. */
+    emailError: text('email_error'),
   },
   (t) => [
     index('duty_change_person_idx').on(t.personId, t.acknowledgedAt),

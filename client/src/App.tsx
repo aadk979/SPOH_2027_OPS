@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router';
 import { LoginPage } from './features/auth/LoginPage';
+import { BreaksPage } from './features/breaks/BreaksPage';
 import { CountPage } from './features/counting/CountPage';
 import { DeploymentPage } from './features/deployment/DeploymentPage';
 import { MyDutyPage } from './features/duty/MyDutyPage';
@@ -8,7 +9,7 @@ import { RosterImportPage } from './features/roster/RosterImportPage';
 import { SetupPage } from './features/setup/SetupPage';
 import { TeamPage } from './features/team/TeamPage';
 import { AppShell } from './layout/AppShell';
-import { HomeRedirect, RequireAuth, RequireTier } from './layout/guards';
+import { HomeRedirect, RequireAuth, RequireBreakManager, RequireTier } from './layout/guards';
 import { ComingSoonPage } from './pages/ComingSoonPage';
 import { MorePage } from './pages/MorePage';
 
@@ -40,9 +41,9 @@ export function App() {
         <Route
           path="breaks"
           element={
-            <RequireTier tier="ic">
-              <ComingSoonPage title="Breaks" slice="S4" />
-            </RequireTier>
+            <RequireBreakManager>
+              <BreaksPage />
+            </RequireBreakManager>
           }
         />
         <Route

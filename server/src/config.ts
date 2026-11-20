@@ -10,30 +10,44 @@ const booleanFromString = z
   .default('false')
   .transform((v) => v === 'true');
 
-const ConfigSchema = z.object({
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().int().positive().default(3000),
-  HOST: z.string().default('0.0.0.0'),
-  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
-  /** Comma-separated origins allowed to call the API (the client URL). */
-  APP_ORIGIN: z.string().default('http://localhost:5173'),
-  /** Public URL of the client, used to build links in emails. */
-  PUBLIC_APP_URL: z.string().url().default('http://localhost:5173'),
-  /** When true the server also serves the built client (single-server deployments). */
-  SERVE_CLIENT: booleanFromString,
-  CLIENT_DIST_DIR: z.string().default('../client/dist'),
-  /** Email of the first CC, allowed to log in before any roster exists. */
-  BOOTSTRAP_CC_EMAIL: z.string().email().optional(),
-  EMAIL_PROVIDER: z.enum(['console', 'smtp', 'resend']).default('console'),
-  EMAIL_FROM: z.string().default('SPOH 2027 Ops <no-reply@localhost>'),
-  SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.coerce.number().int().positive().optional(),
-  SMTP_USER: z.string().optional(),
-  SMTP_PASS: z.string().optional(),
-  SMTP_SECURE: booleanFromString,
-  RESEND_API_KEY: z.string().optional(),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
-});
+const ConfigSchema = z
+  .object({
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    PORT: z.coerce.number().int().positive().default(3000),
+    HOST: z.string().default('0.0.0.0'),
+    DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+    /** Comma-separated origins allowed to call the API (the client URL). */
+    APP_ORIGIN: z.string().default('http://localhost:5173'),
+    /** Public URL of the client, used to build links in emails. */
+    PUBLIC_APP_URL: z.string().url().default('http://localhost:5173'),
+    /** When true the server also serves the built client (single-server deployments). */
+    SERVE_CLIENT: booleanFromString,
+    CLIENT_DIST_DIR: z.string().default('../client/dist'),
+    /** Email of the first CC, allowed to log in before any roster exists. */
+    BOOTSTRAP_CC_EMAIL: z.string().email().optional(),
+    EMAIL_PROVIDER: z.enum(['console', 'smtp', 'resend']).default('console'),
+    EMAIL_FROM: z.string().default('SPOH 2027 Ops <no-reply@localhost>'),
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.coerce.number().int().positive().optional(),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
+    SMTP_SECURE: booleanFromString,
+    RESEND_API_KEY: z.string().optional(),
+    LOG_LEVEL: z
+      .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+      .default('info'),
+  })
+  .superRefine((c, ctx) => {
+    const need = (key: keyof typeof c, why: string) => {
+      if (!c[key]) ctx.addIssue({ code: 'custom', path: [key], message: `required ${why}` });
+    };
+    if (c.EMAIL_PROVIDER === 'smtp') {
+      need('SMTP_HOST', 'when EMAIL_PROVIDER=smtp');
+      need('SMTP_USER', 'when EMAIL_PROVIDER=smtp');
+      need('SMTP_PASS', 'when EMAIL_PROVIDER=smtp');
+    }
+    if (c.EMAIL_PROVIDER === 'resend') need('RESEND_API_KEY', 'when EMAIL_PROVIDER=resend');
+  });
 
 export type Config = z.infer<typeof ConfigSchema>;
 

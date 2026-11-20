@@ -6,6 +6,7 @@ import { seedDefaults } from './db/seed.js';
 import { systemClock } from './deps.js';
 import { createEmailSender } from './email/index.js';
 import { ensureBootstrapCC } from './modules/people/bootstrap.js';
+import { startOutbox } from './modules/notifications/runner.js';
 
 /** Production / dev entry point: migrate, seed defaults, start listening. */
 async function main() {
@@ -16,10 +17,14 @@ async function main() {
   await seedDefaults(db);
   await ensureBootstrapCC(db, config.BOOTSTRAP_CC_EMAIL);
 
-  const app = await buildApp({ config, db, clock: systemClock, email: createEmailSender(config) });
+  const deps = { config, db, clock: systemClock, email: createEmailSender(config) };
+  const app = await buildApp(deps);
+  const stopOutbox = startOutbox(deps, app.log);
+  app.log.info({ provider: deps.email.name }, 'Email provider ready');
 
   const shutdown = async (signal: string) => {
     app.log.info({ signal }, 'Shutting down');
+    stopOutbox();
     await app.close();
     await close();
     process.exit(0);

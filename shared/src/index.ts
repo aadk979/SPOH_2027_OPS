@@ -14,3 +14,5 @@ export * from './days.js';
 export * from './contracts/setup.js';
 export * from './contracts/deployment.js';
 export * from './contracts/duty.js';
+export * from './contracts/notifications.js';
+export * from './contracts/breaks.js';
