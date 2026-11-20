@@ -1,0 +1,35 @@
+# Render Blueprint: one web service (API + client) and one Postgres, both in Singapore.
+# Setup steps: docs/DEPLOY-RENDER.md. No secrets live in this file.
+services:
+  - type: web
+    name: spoh-2027-ops
+    runtime: docker
+    region: singapore
+    plan: free
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: spoh-2027-db
+          property: connectionString
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: '3000'
+      - key: SERVE_CLIENT
+        value: 'true'
+      - key: TZ
+        value: Asia/Singapore
+      - key: EMAIL_PROVIDER
+        value: console
+      # Asked for when the Blueprint is created; never committed.
+      - key: BOOTSTRAP_CC_EMAIL
+        sync: false
+
+databases:
+  - name: spoh-2027-db
+    region: singapore
+    plan: free
+    postgresMajorVersion: '16'

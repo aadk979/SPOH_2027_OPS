@@ -38,7 +38,12 @@ const ConfigSchema = z.object({
 export type Config = z.infer<typeof ConfigSchema>;
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
-  const parsed = ConfigSchema.safeParse(env);
+  // On Render the public URL is only known after the first deploy, so use the one it injects.
+  const hostUrl = env.RENDER_EXTERNAL_URL;
+  const withHostDefaults = hostUrl
+    ? { APP_ORIGIN: hostUrl, PUBLIC_APP_URL: hostUrl, ...stripEmpty(env) }
+    : env;
+  const parsed = ConfigSchema.safeParse(withHostDefaults);
   if (!parsed.success) {
     const problems = parsed.error.issues
       .map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`)
@@ -46,6 +51,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     throw new Error(`Invalid configuration:\n${problems}`);
   }
   return parsed.data;
+}
+
+function stripEmpty(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  return Object.fromEntries(Object.entries(env).filter(([, v]) => v !== undefined && v !== ''));
 }
 
 /** Allowed CORS origins as a list. */
